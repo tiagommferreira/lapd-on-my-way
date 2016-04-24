@@ -1,14 +1,27 @@
 var express = require("express");
 var app = express();
+var pg = require('pg');
+var path = require("path");
+var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/onmyway';
 
 /* serves main page */
 app.get("/", function(req, res) {
   res.send("OK");
 });
 
-app.post("/user/add", function(req, res) {
-  /* some server side logic */
-  res.send("OK");
+app.get('/db', function (request, response) {
+  pg.connect(connectionString, function(err, client, done) {
+    client.query('SELECT * FROM items', function(err, result) {
+      done();
+      if (err)
+       { console.error(err); response.send("Error " + err); }
+      else
+       {
+         response.setHeader('Content-Type', 'application/json');
+         response.send(JSON.stringify(result));
+       }
+    });
+  });
 });
 
 /* serves all the static files */
