@@ -2,23 +2,30 @@ var express = require("express");
 var app = express();
 var pg = require('pg');
 var path = require("path");
-var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/onmyway';
+var connectionString = process.env.DATABASE_URL || 'postgres://postgres:123123@localhost:5432/postgres';
 
 //root
 app.get("/", function(req, res) {
   res.send("OK");
 });
 
-app.get('/db', function (request, response) {
+//get all users
+app.get('/users', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
-    client.query('SELECT * FROM items', function(err, result) {
+    client.query('SELECT data FROM users', function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
       else
        {
-         response.setHeader('Content-Type', 'application/json');
-         response.send(JSON.stringify(result));
+         var queryResponse = "<users>";
+         result.rows.forEach(x => {
+           queryResponse += x.data;
+         });
+         queryResponse += "</users>";
+
+         response.setHeader('Content-Type', 'text/xml');
+         response.send(queryResponse);
        }
     });
   });
