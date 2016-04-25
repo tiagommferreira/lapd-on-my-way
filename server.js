@@ -31,6 +31,23 @@ app.get('/users', function (request, response) {
   });
 });
 
+//get specific user
+app.get('/users/:id', function (request, response) {
+  pg.connect(connectionString, function(err, client, done) {
+    client.query("SELECT data FROM users WHERE (xpath('//user/id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
+      done();
+      if (err)
+       { console.error(err); response.send("Error " + err); }
+      else
+       {
+         var queryResponse = result.rows[0].data;
+
+         response.setHeader('Content-Type', 'text/xml');
+         response.send(queryResponse);
+       }
+    });
+  });
+});
 
 /* serves all the static files */
 /*
