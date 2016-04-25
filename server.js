@@ -49,13 +49,43 @@ app.get('/users/:id', function (request, response) {
   });
 });
 
-/* serves all the static files */
-/*
-app.get(/^(.+)$/, function(req, res){
-   console.log('static file request : ' + req.params);
-   res.sendfile( __dirname + req.params[0]);
+//get user location
+app.get('/users/:id/location', function (request, response) {
+  pg.connect(connectionString, function(err, client, done) {
+    //TODO: change query
+    client.query("SELECT (xpath('//user/position', data))[1]::text FROM users WHERE (xpath('//user/id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
+      done();
+      if (err)
+       { console.error(err); response.send("Error " + err); }
+      else
+       {
+         var queryResponse = result.rows[0].xpath;
+
+         response.setHeader('Content-Type', 'text/xml');
+         response.send(queryResponse);
+       }
+    });
+  });
 });
-*/
+
+//set user location
+app.put('/users/:id/location', function (request, response) {
+  pg.connect(connectionString, function(err, client, done) {
+    //TODO: change query
+    client.query("SELECT data FROM users WHERE (xpath('//user/id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
+      done();
+      if (err)
+       { console.error(err); response.send("Error " + err); }
+      else
+       {
+         var queryResponse = result.rows[0].data;
+         response.setHeader('Content-Type', 'text/xml');
+         response.send(queryResponse);
+       }
+    });
+  });
+});
+
 
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
