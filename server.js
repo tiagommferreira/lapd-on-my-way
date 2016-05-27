@@ -1,9 +1,9 @@
-var express = require("express");
-var app = express();
-var bodyParser = require('body-parser');
-var pg = require('pg');
-var path = require("path");
-var xml2js = require('xml2js');
+var express       = require("express");
+var app           = express();
+var bodyParser    = require('body-parser');
+var pg            = require('pg');
+var path          = require("path");
+var xml2js        = require('xml2js');
 
 app.use(bodyParser.json());
 var connectionString = process.env.DATABASE_URL || 'postgres://postgres:123123@localhost:5432/postgres';
@@ -11,6 +11,52 @@ var connectionString = process.env.DATABASE_URL || 'postgres://postgres:123123@l
 //root
 app.get("/", function(req, res) {
   res.send("OK");
+});
+
+app.post('/login', function(request, response) {
+  //{"id":"523662227806349","name":"Tiago Ferreira","link":"https:\/\/www.facebook.com\/app_scoped_user_id\/523662227806349\/","gender":"male","first_name":"Tiago","last_name":"Ferreira"}
+  var builder = new xml2js.Builder({headless: true, rootName: "user"});
+
+  pg.connect(connectionString, function(err,client,done) {
+    client.query("SELECT * FROM users WHERE (xpath('//user/fb_id/text()', data))[1]::text = ($1)", [request.body.id], function(err, result) {
+      done();
+      if (err)
+       { console.error(err); response.send("Error " + err); }
+      else
+       {
+         if(result.rows.length == 0) {
+           console.log("No user with that fb id");
+           //create new user in the database
+           var newUser = [];
+           newUser.fb_id = request.body.id;
+           newUser.gender = request.body.gender;
+           newUser.first_name = request.body.first_name;
+           newUser.last_name = request.body.last_name;
+
+           client.query("INSERT INTO users (data) VALUES ($1)", [builder.buildObject(newUser)], function(err,result) {
+             done();
+             if (err) {
+               console.error(err); response.send("Error " + err);
+             }
+             else {
+               response.send("OK");
+             }
+
+           });
+
+
+         }
+         else {
+           console.log("User found");
+           response.send("OK");
+         }
+
+
+       }
+    });
+  });
+
+
 });
 
 //get all users
@@ -38,7 +84,7 @@ app.get('/users', function (request, response) {
 //get specific user
 app.get('/users/:id', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
-    client.query("SELECT data FROM users WHERE (xpath('//user/id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
+    client.query("SELECT data FROM users WHERE id = ($1)", [request.params.id], function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
@@ -56,8 +102,7 @@ app.get('/users/:id', function (request, response) {
 //get user location
 app.get('/users/:id/location', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
-    //TODO: change query
-    client.query("SELECT (xpath('//user/position', data))[1]::text FROM users WHERE (xpath('//user/id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
+    client.query("SELECT (xpath('//user/position', data))[1]::text FROM users WHERE id = ($1)", [request.params.id], function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
@@ -78,7 +123,7 @@ app.put('/users/:id/location', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
     //TODO: change query
     var oldUser;
-    client.query("SELECT data FROM users WHERE (xpath('//user/id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
+    client.query("SELECT data FROM users WHERE id = ($1)", [request.params.id], function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
@@ -92,7 +137,9 @@ app.put('/users/:id/location', function (request, response) {
          oldUserObj.user.position[0].latitude[0] = request.body.latitude;
          oldUserObj.user.position[0].longitude[0] = request.body.longitude;
 
-         client.query("UPDATE users SET data = ($1) WHERE (xpath('//user/id/text()', data))[1]::text = ($2)", [new xml2js.Builder().buildObject(oldUserObj),request.params.id], function(err, result) {
+         var builder = new xml2js.Builder({headless: true});
+
+         client.query("UPDATE users SET data = ($1) WHERE id = ($2)", [builder.buildObject(oldUserObj),request.params.id], function(err, result) {
            done();
            if (err)
             { return console.error(err); }
