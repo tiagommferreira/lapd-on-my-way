@@ -32,6 +32,7 @@ app.post('/login', function(request, response) {
            newUser.gender = request.body.gender;
            newUser.first_name = request.body.first_name;
            newUser.last_name = request.body.last_name;
+           newUser.position = request.body.position;
 
            client.query("INSERT INTO users (data) VALUES ($1)", [builder.buildObject(newUser)], function(err,result) {
              done();
