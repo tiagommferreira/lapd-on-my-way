@@ -61,7 +61,7 @@ app.post('/login', function(request, response) {
 });
 
 //get all users
-app.get('/useers', function (request, response) {
+app.get('/userrs', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
     client.query('SELECT data FROM users', function(err, result) {
       done();
