@@ -85,7 +85,7 @@ app.get('/users', function (request, response) {
 //get specific user
 app.get('/users/:id', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
-    client.query("SELECT data FROM users WHERE id = ($1)", [request.params.id], function(err, result) {
+    client.query("SELECT data FROM users WHERE (xpath('//user/fb_id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
@@ -103,7 +103,7 @@ app.get('/users/:id', function (request, response) {
 //get user location
 app.get('/users/:id/location', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
-    client.query("SELECT (xpath('//user/position', data))[1]::text FROM users WHERE id = ($1)", [request.params.id], function(err, result) {
+    client.query("SELECT (xpath('//user/position', data))[1]::text FROM users WHERE (xpath('//user/fb_id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
@@ -111,20 +111,26 @@ app.get('/users/:id/location', function (request, response) {
        {
          var queryResponse = result.rows[0].xpath;
 
-         response.setHeader('Content-Type', 'text/xml');
-         response.send(queryResponse);
+         var position;
+         xml2js.parseString(queryResponse, function(err, result){
+           position = result;
+         });
+
+         response.setHeader('Content-Type', 'application/json');
+         response.send({"latitude": position.position.latitude[0],"longitude":position.position.longitude[0]});
+
        }
     });
   });
 });
 
 //set user location
-app.put('/users/:id/location', function (request, response) {
+app.post('/users/:id/location', function (request, response) {
 
   pg.connect(connectionString, function(err, client, done) {
-    //TODO: change query
+
     var oldUser;
-    client.query("SELECT data FROM users WHERE id = ($1)", [request.params.id], function(err, result) {
+    client.query("SELECT data FROM users WHERE (xpath('//user/fb_id/text()', data))[1]::text = ($1)", [request.params.id], function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
@@ -140,7 +146,7 @@ app.put('/users/:id/location', function (request, response) {
 
          var builder = new xml2js.Builder({headless: true});
 
-         client.query("UPDATE users SET data = ($1) WHERE id = ($2)", [builder.buildObject(oldUserObj),request.params.id], function(err, result) {
+         client.query("UPDATE users SET data = ($1) WHERE (xpath('//user/fb_id/text()', data))[1]::text = ($2)", [builder.buildObject(oldUserObj),request.params.id], function(err, result) {
            done();
            if (err)
             { return console.error(err); }
