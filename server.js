@@ -154,17 +154,52 @@ app.post('/users/:id/location', function (request, response) {
             response.send("OK");
           }
          });
-
        }
     });
-
-
-
   });
-
 });
 
+app.get('/meetings', function(request, response)
+{
+	pg.connect(connectionString, function(err, client, done)
+	{
+		client.query("SELECT * FROM meetings", function(err, result)
+		{
+			done();
+			if (err)
+			{
+				console.error(err);
+				response.send("Error " + err);
+			}
+			else
+			{
+				response.send(result);
+			}
+		});
+	});
+});
 
+/*
+app.post('/meeting', function(request, response)
+{
+	pg.connect(connectionString, function(err, client, done)
+	{
+		client.query("INSERT INTO meetings(meeting_date, location) VALUES($1, $2)", [request.params.date, request.params.location], function(err, result)
+		{
+			done();
+			if (err)
+			{
+				console.error(err);
+				response.send("Error " + err);
+			}
+			else
+			{
+				
+			}
+		});
+	});
+});
+*/
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
  console.log("Listening on " + port);
