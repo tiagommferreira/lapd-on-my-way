@@ -201,6 +201,26 @@ app.get('/meetings/:meeting_id', function(request, response)
 	});
 });
 
+app.get('/meeting_users/:meeting_id', function(request, response)
+{
+	pg.connect(connectionString, function(err, client, done)
+	{
+		client.query("SELECT fb_id FROM meeting_users WHERE meeting_id = ($1)", [request.params.meeting_id], function(err, result)
+		{
+			done();
+			if (err)
+			{
+				console.error(err);
+				response.send("Error " + err);
+			}
+			else
+			{
+				response.setHeader('Content-Type', 'application/json');
+				response.send(result.rows);
+			}
+		});
+	});
+});
 
 app.get('/user_meetings/:fb_id', function(request, response)
 {
@@ -223,7 +243,6 @@ app.get('/user_meetings/:fb_id', function(request, response)
 	});
 });
 
-/*
 app.post('/meeting', function(request, response)
 {
 	pg.connect(connectionString, function(err, client, done)
@@ -238,12 +257,19 @@ app.post('/meeting', function(request, response)
 			}
 			else
 			{
-				
+				client.query("SELECT MAX(meeting_id) FROM meetings", function(err, result)
+				{
+					done();
+					var id = result.rows[0];
+					request.params.users.forEach(x => {
+						client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES()", [id, x], function(err, result));
+					});
+				});
 			}
 		});
 	});
 });
-*/
+
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
  console.log("Listening on " + port);
