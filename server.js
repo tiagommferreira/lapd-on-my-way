@@ -158,7 +158,7 @@ app.post('/users/:id/location', function (request, response) {
     });
   });
 });
-/*
+
 app.get('/meetings', function(request, response)
 {
 	pg.connect(connectionString, function(err, client, done)
@@ -177,7 +177,7 @@ app.get('/meetings', function(request, response)
 			}
 		});
 	});
-});*/
+});
 
 /*
 app.post('/meeting', function(request, response)
