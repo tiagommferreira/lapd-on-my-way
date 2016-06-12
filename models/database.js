@@ -39,4 +39,35 @@ pg.connect(connectionString, function(err, client, done) {
 	
 	client.query('CREATE TABLE meeting_users(meeting_id serial REFERENCES meetings(meeting_id), fb_id serial, PRIMARY KEY(meeting_id, fb_id)');
 	done();
+		
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (1, 1003858069668900)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (1, 523662227806349)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (2, 523662227806349)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (2, 1003858069668900)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (2, 123)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
 });

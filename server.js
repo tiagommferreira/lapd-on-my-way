@@ -204,6 +204,39 @@ app.get('/meetings/:meeting_id', function(request, response)
 
 app.get('/user_meetings/:fb_id', function(request, response)
 {
+	client.query('CREATE TABLE meeting_users(meeting_id serial REFERENCES meetings(meeting_id), fb_id serial, PRIMARY KEY(meeting_id, fb_id)');
+	done();
+		
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (1, 1003858069668900)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (1, 523662227806349)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (2, 523662227806349)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (2, 1003858069668900)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
+	client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES (2, 123)", function(err, result)
+	{
+		done();
+		if (err)
+			return console.error(err);
+	});
 	pg.connect(connectionString, function(err, client, done)
 	{
 		client.query("SELECT meeting_id FROM meeting_users WHERE fb_id = ($1)", [request.params.fb_id], function(err, result)
