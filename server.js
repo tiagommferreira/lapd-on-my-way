@@ -174,7 +174,7 @@ app.get('/meetings', function(request, response)
 			else
 			{
 				response.setHeader('Content-Type', 'application/json');
-				response.send(result);
+				response.send(result.rows);
 			}
 		});
 	});
