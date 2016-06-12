@@ -201,6 +201,28 @@ app.get('/meetings/:meeting_id', function(request, response)
 	});
 });
 
+
+app.get('/user_meetings/:fb_id', function(request, response)
+{
+	pg.connect(connectionString, function(err, client, done)
+	{
+		client.query("SELECT meeting_id FROM meeting_users WHERE fb_id = ($1)", [request.params.fb_id], function(err, result)
+		{
+			done();
+			if (err)
+			{
+				console.error(err);
+				response.send("Error " + err);
+			}
+			else
+			{
+				response.setHeader('Content-Type', 'application/json');
+				response.send(result.rows);
+			}
+		});
+	});
+});
+
 /*
 app.post('/meeting', function(request, response)
 {
