@@ -6,7 +6,7 @@ pg.connect(connectionString, function(err, client, done) {
     return console.error('could not connect to postgres', err);
   }
 
-  client.query('CREATE TABLE users(id serial PRIMARY KEY, data xml not null)')/*;*/
+  client.query('CREATE TABLE users(id serial PRIMARY KEY, data xml not null)');
   done();
 
   client.query("INSERT INTO users (data) VALUES ('<user><fb_id>123</fb_id><gender>Male</gender><first_name>Robert</first_name><last_name>Richards</last_name><position><latitude>41.178726</latitude><longitude>-8.598801</longitude></position></user>')", function(err, result) {
