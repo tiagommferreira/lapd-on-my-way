@@ -26,7 +26,7 @@ pg.connect(connectionString, function(err, client, done) {
     if (err)
      { return console.error(err); }
   });
-	
+	/*
 	client.query('CREATE TABLE meetings(meeting_id serial NOT NULL PRIMARY KEY, meeting_date TIMESTAMP, location TEXT)');
 	done();
 	
@@ -38,5 +38,5 @@ pg.connect(connectionString, function(err, client, done) {
 	});
 	
 	client.query('CREATE TABLE meeting_users(meeting_id serial REFERENCES meetings(meeting_id), fb_id serial, PRIMARY KEY(meeting_id, fb_id)');
-	done();
+	done();*/
 });
