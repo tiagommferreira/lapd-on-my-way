@@ -30,7 +30,7 @@ pg.connect(connectionString, function(err, client, done) {
 	client.query('CREATE TABLE meetings(meeting_id serial NOT NULL PRIMARY KEY, meeting_date TIMESTAMP, location TEXT)');
 	done();
 	
-	client.query("INSERT INTO meetings(meeting_date, location) VALUES (current_timestamp, 'TESTE')", function(err, result)
+	client.query("INSERT INTO meetings(meeting_date, location) VALUES (current_timestamp, 'TESTE location')", function(err, result)
 	{
 		done();
 		if (err)
