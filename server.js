@@ -163,12 +163,6 @@ app.get('/meetings', function(request, response)
 {
 	pg.connect(connectionString, function(err, client, done)
 	{
-	client.query("INSERT INTO meetings(meeting_date, location) VALUES (current_timestamp, 'TESTE location')", function(err, result)
-	{
-		done();
-		if (err)
-			return console.error(err);
-	});
 		client.query("SELECT * FROM meetings", function(err, result)
 		{
 			done();
@@ -179,6 +173,7 @@ app.get('/meetings', function(request, response)
 			}
 			else
 			{
+				response.setHeader('Content-Type', 'application/json');
 				response.send(result);
 			}
 		});
