@@ -161,9 +161,6 @@ app.post('/users/:id/location', function (request, response) {
 
 app.get('/meetings', function(request, response)
 {
-	client.query('CREATE TABLE meeting_users(meeting_id serial REFERENCES meetings(meeting_id), fb_id serial, PRIMARY KEY(meeting_id, fb_id)');
-	done();
-	
 	pg.connect(connectionString, function(err, client, done)
 	{
 		client.query("SELECT * FROM meetings", function(err, result)
