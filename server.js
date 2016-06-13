@@ -262,7 +262,17 @@ app.post('/meeting', function(request, response)
 					done();
 					var id = result.rows[0];
 					request.params.users.forEach(x => {
-						client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES($1, $2)", [id, x], function(err, result));
+						client.query("INSERT INTO meeting_users(meeting_id, fb_id) VALUES($1, $2)", [id, x], function(err, result) {
+              done();
+        			if (err)
+        			{
+        				console.error(err);
+        				response.send("Error " + err);
+        			}
+              else {
+                response.send("ok");
+              }
+            });
 					});
 				});
 			}
